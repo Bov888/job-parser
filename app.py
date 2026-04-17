@@ -88,40 +88,18 @@ def calc_score(title, desc, filters):
 
 # ── PARSER ──────────────────────────────────────────────────────────────────
 
-def run_scanner(pages, filters):
-    jobs = []
-    STOP_WORDS = ["водій", "кур'єр", "експедитор", "зсу", "охоронець", "кухар", "вантажник"]
-    bar = st.progress(0); status = st.empty()
-    
-    for p in range(1, pages + 1):
-        status.caption(f"Аналіз сторінки {p}...")
-        try:
-            r = requests.get(f"https://www.work.ua/jobs-remote/?page={p}", timeout=10, headers={"User-Agent": "Mozilla/5.0"})
-            soup = BeautifulSoup(r.text, "html.parser")
-            cards = soup.find_all("div", class_=re.compile(r"job-link|card-hover"))
-            
-            for c in cards:
-                t_tag = c.find("h2").find("a")
-                title = t_tag.get_text(strip=True)
-                if any(sw in title.lower() for sw in STOP_WORDS): continue
-                
-                link = "https://www.work.ua" + t_tag["href"]
-                desc = get_job_description(link)
-                
-                # ЖОРСТКИЙ ФІЛЬТР: Тільки якщо підтверджено Remote
-                if not is_strictly_remote(title, desc): continue
-                
-                sal = c.find("b", string=re.compile(r'\d')).get_text(strip=True) if c.find("b", string=re.compile(r'\d')) else "Не вказана"
-                jobs.append({"title": title, "salary": sal, "link": link, "desc": desc})
-        except: continue
-        bar.progress(p / pages)
-    
-    status.empty(); bar.empty()
-    if not jobs: return pd.DataFrame()
-    df = pd.DataFrame(jobs)
-    df["score"] = df.apply(lambda r: calc_score(r["title"], r["desc"], filters), axis=1)
-    df["match"] = df["score"].apply(lambda s: min(100, max(0, int((float(s) + 20) * 2))))
-    return df
+if st.button("🚀 Почати сканування", use_container_width=True):
+    try:
+        with st.spinner("Працюю... Не згортайте браузер"):
+            data = run_scanner(pages, st.session_state["filters"])
+            if data.empty:
+                st.warning("Вакансій не знайдено або доступ обмежено.")
+            else:
+                st.session_state["df"] = data
+                st.success("Готово!")
+    except Exception as e:
+        st.error(f"Помилка з'єднання: {e}")
+
 
 # ── INTERFACE ───────────────────────────────────────────────────────────────
 
