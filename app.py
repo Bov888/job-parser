@@ -2,6 +2,27 @@ import re, time, random
 import requests, streamlit as st, pandas as pd
 from bs4 import BeautifulSoup
 
+def check_password():
+    """Повертає True, якщо користувач ввів правильний пароль."""
+    def password_entered():
+        if st.session_state["password"] == st.secrets["password"]:
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # видаляємо пароль із пам'яті
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.text_input("Введіть пароль", type="password", on_change=password_entered, key="password")
+        return False
+    elif not st.session_state["password_correct"]:
+        st.text_input("Введіть пароль", type="password", on_change=password_entered, key="password")
+        st.error("😕 Неправильний пароль")
+        return False
+    else:
+        return True
+
+if not check_password():
+    st.stop() # Зупиняє виконання коду, поки не введено пароль
 # ── CONFIG ──────────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Job Scanner Pro", page_icon="⚡", layout="wide")
 
