@@ -3,7 +3,7 @@ import requests, streamlit as st, pandas as pd
 from bs4 import BeautifulSoup
 
 # Твоє посилання на Google Apps Script
-GAS_PROXY_URL = "https://script.google.com/macros/s/AKfycbzVkDdbqL3wc4pGXmNCUyCZBGSZl3j9eCexPqfGSje-UuLdqbTFJH5-U2Bqwy-WlqfMUw/exec"
+GAS_PROXY_URL = "https://script.google.com/macros/s/AKfycbxy-vyjXlY0tkBtCaZzbaqL-b0SzY5TkgViOJUV8gGIvuMUCRv3tEtsziStI88tbhu3DA/exec"
 
 # ── 1. АВТЕНТИФІКАЦІЯ ──────────────────────────────────────────────
 def check_password():
